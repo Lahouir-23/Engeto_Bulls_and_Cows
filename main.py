@@ -1,94 +1,85 @@
 import random
 
-def sec_num() -> str:
+def generate_sec_num() -> int:
+    """
+    Generuje 4 náhodná čísla s unikatními číslicemi.
+
+    Vrací: tajné číslo
+    """
+
     first_digit = random.choice('123456789')
     remaining = list('0123456789')
     remaining.remove(first_digit)
 
     secret = first_digit + ''.join(random.sample(remaining, 3))
-    return secret
+    return int(secret)
 
-secret = sec_num()
-
-print('Hi There!')
-print(47 * '_')
-print('I have generated a random 4 digit number for you.')
-print('Lets play a bulls and cows game.')
-print(47 * '_')
+def get_valid_guess() -> str:
+    """
+    Získa input uživatele a skontroluje zda je platný tip
 
 
-while True:
-    guess = input('Please enter a number: ')
+     Vrací: platný tip uživatele
+    """
+    while True:
+        guess = input('Please enter a number: ')
 
-    if len(guess) != 4:
-        print('Error, guess must be exactly 4 digits')
+        if len(guess) != 4:
+            print('Error, guess must be exactly 4 digits')
 
-    if not guess.isdigit():
-        print('Error, guess must be a number')
+        if not guess.isdigit():
+            print('Error, guess must be a number')
 
-    elif guess[0] == '0':
-       print('Guess can\'t start with 0')
+        elif guess[0] == '0':
+           print('Guess can\'t start with 0')
 
-    elif len(set(guess)) != 4:
-        print('Error, guess can\'t contain dupplicate digits')
+        elif len(set(guess)) != 4:
+            print('Error, guess can\'t contain dupplicate digits')
 
+        return guess
+
+def evaluate_guess(guess: str, secret: str) -> tuple[int, int]:
+    """
+    Porovná tip hráče s tajným číslem v def generate_sec_num a spočítá bulls a cows.
+
+    Vrací: tuple (Bulls, cows)
+
+    """
     bulls = 0
     cows = 0
-
     for i in range(4):
         if guess[i] == secret[i]:
             bulls += 1
         elif guess[i] in secret and guess[i] != secret[i]:
             cows += 1
+    return bulls, cows
 
-        if bulls == 1:
-            bull_text = 'bull'
-        else:
-            bull_text = 'bulls'
+def print_score(bulls: int, cows: int) -> None:
+        bull_text = 'bull' if bulls == 1 else 'bulls'
+        cow_text = 'cow' if cows == 1 else 'cows'
+        print(f'{bulls} {bull_text}, {cows} {cow_text}')
 
-        if cows == 1:
-            cow_text = 'cow'
-        else:
-            cow_text = 'cows'
+def main() -> None:
+    """Hlavní funkce hry"""
+    secret = generate_sec_num()
+    secret = str(secret)
 
-        print(f'{bulls} {bull_text} {cows} {cow_text}')
+    print("Hi There!")
+    print(47 * "_")
+    print("I have generated a random 4 digit number for you.")
+    print("Let's play a bulls and cows game.")
+    print(47 * "_")
 
-        if bulls == 4:
-            print('YOU WIN')
-            exit()
-    if len(guess) != 4:
-        print('Error, guess must be exactly 4 digits')
+    while True:
+        guess = get_valid_guess()
+        bulls, cows = evaluate_guess(guess, secret)
 
-    if not guess.isdigit():
-        print('Error, guess must be a number')
-
-    elif guess[0] == '0':
-       print('Guess can\'t start with 0')
-
-    elif len(set(guess)) != 4:
-        print('Error, guess can\'t contain dupplicate digits')
-
-    bulls = 0
-    cows = 0
-
-    for i in range(4):
-        if guess[i] == secret[i]:
-            bulls += 1
-        elif guess[i] in secret and guess[i] != secret[i]:
-            cows += 1
-
-        if bulls == 1:
-            bull_text = 'bull'
-        else:
-            bull_text = 'bulls'
-
-        if cows == 1:
-            cow_text = 'cow'
-        else:
-            cow_text = 'cows'
-
-        print(f'{bulls} {bull_text} {cows} {cow_text}')
+        print_score(bulls, cows)
 
         if bulls == 4:
-            print('YOU WIN')
-            exit()
+            print("YOU WIN!")
+            break
+
+
+if __name__ == "__main__":
+    main()
