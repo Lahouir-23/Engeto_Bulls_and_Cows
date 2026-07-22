@@ -1,72 +1,80 @@
 import random
 
-def generate_sec_num() -> int:
-    """
-    Generuje 4 náhodná čísla s unikatními číslicemi.
+NUM_DIGITS = 4
+DIGITS = '0123456789'
 
-    Vrací: tajné číslo
-    """
 
-    first_digit = random.choice('123456789')
-    remaining = list('0123456789')
+def generate_sec_num() -> str:
+    """
+    Generuje tajné číslo s NUM_DIGITS unikátními číslicemi (první není 0).
+
+    Vrací: tajné číslo jako řetězec
+    """
+    first_digit = random.choice(DIGITS[1:])
+    remaining = list(DIGITS)
     remaining.remove(first_digit)
 
-    secret = first_digit + ''.join(random.sample(remaining, 3))
-    return int(secret)
+    secret = first_digit + ''.join(random.sample(remaining, NUM_DIGITS - 1))
+    return secret
+
 
 def get_valid_guess() -> str:
     """
-    Získa input uživatele a skontroluje zda je platný tip
+    Získá input uživatele a zkontroluje, zda je platný tip.
 
-
-     Vrací: platný tip uživatele
+    Vrací: platný tip uživatele
     """
     while True:
-        guess = input('Please enter a number: ')
+        guess = input(f'Please enter a {NUM_DIGITS}-digit number: ').strip()
 
-        if len(guess) != 4:
-            print('Error, guess must be exactly 4 digits')
+        if len(guess) != NUM_DIGITS:
+            print(f'Error, guess must be exactly {NUM_DIGITS} digits')
+            continue
 
         if not guess.isdigit():
-            print('Error, guess must be a number')
+            print('Error, guess must contain only digits')
+            continue
 
-        elif guess[0] == '0':
-           print('Guess can\'t start with 0')
+        if guess[0] == '0':
+            print("Error, guess can't start with 0")
+            continue
 
-        elif len(set(guess)) != 4:
-            print('Error, guess can\'t contain dupplicate digits')
+        if len(set(guess)) != NUM_DIGITS:
+            print("Error, guess can't contain duplicate digits")
+            continue
 
         return guess
 
+
 def evaluate_guess(guess: str, secret: str) -> tuple[int, int]:
     """
-    Porovná tip hráče s tajným číslem v def generate_sec_num a spočítá bulls a cows.
+    Porovná tip hráče s tajným číslem a spočítá bulls a cows.
 
-    Vrací: tuple (Bulls, cows)
-
+    Vrací: tuple (bulls, cows)
     """
     bulls = 0
     cows = 0
-    for i in range(4):
-        if guess[i] == secret[i]:
+    for guess_digit, secret_digit in zip(guess, secret):
+        if guess_digit == secret_digit:
             bulls += 1
-        elif guess[i] in secret and guess[i] != secret[i]:
+        elif guess_digit in secret:
             cows += 1
     return bulls, cows
 
+
 def print_score(bulls: int, cows: int) -> None:
-        bull_text = 'bull' if bulls == 1 else 'bulls'
-        cow_text = 'cow' if cows == 1 else 'cows'
-        print(f'{bulls} {bull_text}, {cows} {cow_text}')
+    bull_text = 'bull' if bulls == 1 else 'bulls'
+    cow_text = 'cow' if cows == 1 else 'cows'
+    print(f'{bulls} {bull_text}, {cows} {cow_text}')
 
-def main() -> None:
-    """Hlavní funkce hry"""
+
+def play_round() -> None:
+    """Odehraje jedno kolo hry."""
     secret = generate_sec_num()
-    secret = str(secret)
 
-    print("Hi There!")
+    print("Hi there!")
     print(47 * "_")
-    print("I have generated a random 4 digit number for you.")
+    print(f"I have generated a random {NUM_DIGITS}-digit number for you.")
     print("Let's play a bulls and cows game.")
     print(47 * "_")
 
@@ -76,8 +84,19 @@ def main() -> None:
 
         print_score(bulls, cows)
 
-        if bulls == 4:
-            print("YOU WIN!")
+        if bulls == NUM_DIGITS:
+            print("YOU WON!")
+            break
+
+
+def main() -> None:
+    """Hlavní funkce hry, umožňuje opakované hraní."""
+    while True:
+        play_round()
+
+        again = input("Chceš hrát znovu? (ano/ne): ").strip().lower()
+        if again not in ('ano', 'a', 'yes', 'y'):
+            print("Díky za hru, ahoj!")
             break
 
 
